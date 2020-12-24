@@ -25,7 +25,7 @@ val listOfSquares = (1..10).map { it * it }
 
 ## Usage  
 - Import detekt as a gradle, as mentioned [here](https://detekt.github.io/detekt/gradle.html).
-- Add `detekt-extensions` in your root build.gradle at the end of repositories:
+- Add *jitpack* in your root build.gradle at the end of repositories:
 
 ```
 allprojects {
