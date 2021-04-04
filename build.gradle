@@ -16,9 +16,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "io.gitlab.arturbosch.detekt:detekt-api:1.9.0"
 
-    testImplementation 'io.gitlab.arturbosch.detekt:detekt-cli:1.9.0'
     testImplementation 'io.gitlab.arturbosch.detekt:detekt-test:1.9.0'
-
     testImplementation 'org.assertj:assertj-core:3.16.1'
     testImplementation "org.spekframework.spek2:spek-dsl-jvm:2.0.9"
     testImplementation "org.spekframework.spek2:spek-runner-junit5:2.0.9"
