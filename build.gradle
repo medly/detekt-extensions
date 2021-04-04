@@ -1,28 +1,27 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.72'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
     id 'maven-publish'
-    id 'maven'
+    id 'signing'
+    id "org.jetbrains.dokka" version "0.10.1"
 }
 
-group 'rules'
-version '0.0.1'
+group 'com.medly'
+version '0.0.2'
 
 repositories {
     mavenCentral()
-    jcenter()
 }
-
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation group: 'io.gitlab.arturbosch.detekt', name: 'detekt-api', version: '1.9.0'
+    implementation "io.gitlab.arturbosch.detekt:detekt-api:1.9.0"
 
-    testImplementation group: 'io.gitlab.arturbosch.detekt', name: 'detekt-cli', version: '1.9.0'
-    testImplementation group: 'io.gitlab.arturbosch.detekt', name: 'detekt-test', version: '1.9.0'
+    testImplementation 'io.gitlab.arturbosch.detekt:detekt-cli:1.9.0'
+    testImplementation 'io.gitlab.arturbosch.detekt:detekt-test:1.9.0'
 
-    testCompile group: 'org.spekframework.spek2', name: 'spek-dsl-jvm', version: '2.0.9'
-    testCompile group: 'org.spekframework.spek2', name: 'spek-runner-junit5', version: '2.0.9'
-    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.16.1'
+    testImplementation 'org.assertj:assertj-core:3.16.1'
+    testImplementation "org.spekframework.spek2:spek-dsl-jvm:2.0.9"
+    testImplementation "org.spekframework.spek2:spek-runner-junit5:2.0.9"
 }
 
 compileKotlin {
@@ -30,4 +29,91 @@ compileKotlin {
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks {
+    dokka {
+        outputFormat = "html"
+        outputDirectory = "$buildDir/javadoc"
+    }
+}
+
+task dokkaJar(type: Jar) {
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+    description = "Assembles Kotlin docs with Dokka"
+    archiveClassifier.set("javadoc")
+    from(tasks.dokka)
+    dependsOn(tasks.dokka)
+}
+
+task sourcesJar(type: Jar) {
+    archiveClassifier.set("sources")
+    from(sourceSets.getByName("main").allSource)
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact dokkaJar
+
+            pom {
+                name = "detekt-extensions"
+                description = "detekt-extensions"
+                url.set("https://github.com/medly/detekt-extensions")
+                licenses {
+                    license {
+                        name = "MIT"
+                        url = "https://opensource.org/licenses/MIT"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "RajatVaryani"
+                        name = "Rajat Varyani"
+                        email = "rajatv@medly.com"
+                    }
+                    developer {
+                        id = "kdabir"
+                        name = "Kunal Dabir"
+                        email = "kd@medly.com"
+                    }
+                    developer {
+                        id = "niraj8"
+                        name = "Niraj Palecha"
+                        email = "nirajp@medly.com"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git@github.com:medly/detekt-extensions.git"
+                    developerConnection = "scm:git:ssh://github.com/medly/detekt-extensions.git"
+                    url = "https://github.com/medly/detekt-extensions"
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            credentials {
+                username System.getenv("OSSRH_USERNAME")
+                password System.getenv("OSSRH_PASSWORD")
+            }
+
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+        }
+    }
+}
+
+
+signing {
+    def signingKey = System.getenv("OSSRH_SIGNING_SECRET_KEY")
+    def signingPassword = System.getenv("OSSRH_SIGNING_PASSPHRASE")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.mavenJava // must come after above block
 }

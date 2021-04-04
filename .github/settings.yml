@@ -7,7 +7,7 @@ repository:
   name: detekt-extensions
 
   # A short description of the repository that will show up on GitHub
-  description: useful detekt extensions to 
+  description: useful detekt extensions
 
   # A URL with more information about the repository
   homepage: https://github.com/medly/detekt-extensions
